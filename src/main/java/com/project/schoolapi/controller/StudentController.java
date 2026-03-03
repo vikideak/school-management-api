@@ -36,7 +36,7 @@ public class StudentController {
 
     @GetMapping
     public ResponseEntity<Page<StudentResponse>> search(
-            @RequestParam UUID schoolId,
+            @Valid @RequestParam UUID schoolId,
             @RequestParam("") String name,
             Pageable pageable) {
         return ResponseEntity.ok(studentService.search(schoolId, name, pageable));
@@ -44,14 +44,14 @@ public class StudentController {
 
     @GetMapping("/{id}")
     public ResponseEntity<StudentResponse> get(
-            @PathVariable UUID id
+            @Valid @PathVariable UUID id
     ) {
         return ResponseEntity.ok(studentService.get(id));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(
-            @PathVariable UUID id
+            @Valid @PathVariable UUID id
     ) {
         studentService.delete(id);
         return ResponseEntity.noContent().build();

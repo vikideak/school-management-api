@@ -1,5 +1,11 @@
 package com.project.schoolapi.model;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -7,8 +13,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
+@Entity
 @Getter
 @Setter
 @NoArgsConstructor
@@ -16,13 +22,16 @@ import java.util.UUID;
 @Builder
 public class EnrollmentJob {
 
-    private UUID id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private String id;
 
     private String studentId;
 
     private String schoolId;
 
-    private EnrollmentStatus status;
+    @Enumerated(EnumType.STRING)
+    private EnrollmentStatus enrollmentStatus;
 
     private LocalDateTime createdAt;
 

@@ -8,7 +8,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.UUID;
 
 public interface StudentRepository extends JpaRepository<Student, String> {
-    long countBySchoolId(UUID schoolId);
+    int countBySchoolId(String schoolId);
 
-    Page<Student> findBySchoolIdAndNameIgnoreCaseContaining(UUID schoolId, String name, Pageable pageable);
+    Page<Student> findBySchoolIdAndNameIgnoreCaseContaining(String schoolId, String name, Pageable pageable);
+
+    boolean existsByNameIgnoreCase(String name);
 }

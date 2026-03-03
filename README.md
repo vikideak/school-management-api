@@ -1,1 +1,1 @@
-# school-management-api
+# school-enlistment-api-readme

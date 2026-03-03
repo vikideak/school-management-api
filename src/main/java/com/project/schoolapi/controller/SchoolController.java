@@ -43,14 +43,14 @@ public class SchoolController {
 
     @GetMapping("/{id}")
     public ResponseEntity<SchoolResponse> get(
-            @PathVariable UUID id
+            @Valid @PathVariable UUID id
     ) {
         return ResponseEntity.status(HttpStatus.OK).body(schoolService.get(id));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(
-            @PathVariable UUID id
+            @Valid @PathVariable UUID id
     ) {
         schoolService.delete(id);
         return ResponseEntity.noContent().build();

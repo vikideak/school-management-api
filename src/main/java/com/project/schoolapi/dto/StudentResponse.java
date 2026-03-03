@@ -2,18 +2,21 @@ package com.project.schoolapi.dto;
 
 import com.project.schoolapi.model.Student;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 import java.util.UUID;
 
+@Getter
 @AllArgsConstructor
 public class StudentResponse {
-    UUID id;
+    private UUID id;
 
-    String name;
+    private String name;
 
-    UUID schoolId;
+    private UUID schoolId;
 
     public static StudentResponse fromStudentModel(Student student) {
-        return new StudentResponse(student.getId(), student.getName(), student.getSchool().getId());
+        UUID schoolId = student.getSchool() != null ? UUID.fromString(student.getSchool().getId()) : null;
+        return new StudentResponse(UUID.fromString(student.getId()), student.getName(), schoolId);
     }
 }

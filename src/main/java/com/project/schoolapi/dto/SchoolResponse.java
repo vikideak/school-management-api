@@ -2,18 +2,20 @@ package com.project.schoolapi.dto;
 
 import com.project.schoolapi.model.School;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 import java.util.UUID;
 
+@Getter
 @AllArgsConstructor
 public class SchoolResponse {
-    UUID id;
+    private UUID id;
 
-    String name;
+    private String name;
 
-    int capacity;
+    private int capacity;
 
     public static SchoolResponse fromSchoolModel(School school) {
-        return new SchoolResponse(school.getId(), school.getName(), school.getCapacity());
+        return new SchoolResponse(UUID.fromString(school.getId()), school.getName(), school.getCapacity());
     }
 }

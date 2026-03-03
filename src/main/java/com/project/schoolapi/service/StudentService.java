@@ -2,6 +2,7 @@ package com.project.schoolapi.service;
 
 import com.project.schoolapi.dto.StudentRequest;
 import com.project.schoolapi.dto.StudentResponse;
+import com.project.schoolapi.exception.DuplicateNameException;
 import com.project.schoolapi.exception.NotFoundException;
 import com.project.schoolapi.model.Student;
 import com.project.schoolapi.repository.StudentRepository;
@@ -16,31 +17,31 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class StudentService {
 
-    private final StudentRepository repository;
+    private final StudentRepository studentRepository;
 
     public StudentResponse create(StudentRequest request) {
+        if (studentRepository.existsByNameIgnoreCase(request.getName())) {
+            throw new DuplicateNameException("Student name already exists");
+        }
         Student student = Student.builder()
                 .name(request.getName())
                 .build();
 
-        return StudentResponse.fromStudentModel(repository.save(student));
+        return StudentResponse.fromStudentModel(studentRepository.save(student));
     }
 
     public Page<StudentResponse> search(UUID schoolId, String name, Pageable pageable) {
-        return repository.findBySchoolIdAndNameIgnoreCaseContaining(schoolId, name, pageable)
+        return studentRepository.findBySchoolIdAndNameIgnoreCaseContaining(schoolId.toString(), name, pageable)
                 .map(StudentResponse::fromStudentModel);
     }
 
     public StudentResponse get(UUID id) {
-        return repository.findById(id.toString())
+        return studentRepository.findById(id.toString())
                 .map(StudentResponse::fromStudentModel)
                 .orElseThrow(() -> new NotFoundException("Student not found"));
     }
 
     public void delete(UUID id) {
-        if (!repository.existsById(id.toString()))
-            throw new NotFoundException("Student not found");
-
-        repository.deleteById(id.toString());
+        studentRepository.deleteById(id.toString());
     }
 }

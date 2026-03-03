@@ -2,9 +2,9 @@ services:
   db:
     image: postgres:15
     environment:
-      POSTGRES_DB: schooldb
-      POSTGRES_USER: apiuser
-      POSTGRES_PASSWORD: complicatedpassword
+      POSTGRES_DB: school
+      POSTGRES_USER: school
+      POSTGRES_PASSWORD: school
     ports:
       - "5432:5432"
 

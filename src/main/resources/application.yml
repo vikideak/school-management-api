@@ -1,4 +1,15 @@
 spring:
+  datasource:
+    url: jdbc:postgresql://db:5432/school
+    username: school
+    password: school
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+  flyway:
+    enabled: true
+    validate-migration-naming: true
   threads:
     virtual:
       enabled: true

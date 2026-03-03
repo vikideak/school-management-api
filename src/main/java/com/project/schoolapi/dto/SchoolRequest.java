@@ -3,12 +3,14 @@ package com.project.schoolapi.dto;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import lombok.Getter;
 
+@Getter
 public class SchoolRequest {
     @NotBlank
-    String name;
+    public String name;
 
     @Min(50)
     @Max(2000)
-    int capacity;
+    public int capacity;
 }

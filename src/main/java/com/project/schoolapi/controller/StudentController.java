@@ -1,8 +1,8 @@
 package com.project.schoolapi.controller;
 
-import com.project.schoolapi.dto.SchoolRequest;
-import com.project.schoolapi.dto.SchoolResponse;
-import com.project.schoolapi.service.SchoolService;
+import com.project.schoolapi.dto.StudentRequest;
+import com.project.schoolapi.dto.StudentResponse;
+import com.project.schoolapi.service.StudentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -21,38 +21,39 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/schools")
+@RequestMapping("/students")
 @RequiredArgsConstructor
-public class SchoolController {
+public class StudentController {
 
-    private final SchoolService schoolService;
+    private final StudentService studentService;
 
     @PostMapping
-    public ResponseEntity<SchoolResponse> create(
-            @Valid @RequestBody SchoolRequest request
+    public ResponseEntity<StudentResponse> create(
+            @Valid @RequestBody StudentRequest request
     ) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(schoolService.create(request));
+        return ResponseEntity.status(HttpStatus.CREATED).body(studentService.create(request));
     }
 
     @GetMapping
-    public ResponseEntity<Page<SchoolResponse>> search(
-            @RequestParam(required = false) String name,
+    public ResponseEntity<Page<StudentResponse>> search(
+            @RequestParam UUID schoolId,
+            @RequestParam("") String name,
             Pageable pageable) {
-        return ResponseEntity.ok(schoolService.search(name, pageable));
+        return ResponseEntity.ok(studentService.search(schoolId, name, pageable));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<SchoolResponse> get(
+    public ResponseEntity<StudentResponse> get(
             @PathVariable UUID id
     ) {
-        return ResponseEntity.status(HttpStatus.OK).body(schoolService.get(id));
+        return ResponseEntity.ok(studentService.get(id));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(
             @PathVariable UUID id
     ) {
-        schoolService.delete(id);
+        studentService.delete(id);
         return ResponseEntity.noContent().build();
     }
 }

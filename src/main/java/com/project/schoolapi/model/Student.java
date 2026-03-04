@@ -20,7 +20,6 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 public class Student {
-
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;

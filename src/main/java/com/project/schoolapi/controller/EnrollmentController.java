@@ -1,12 +1,17 @@
 package com.project.schoolapi.controller;
 
-import com.project.schoolapi.model.EnrollmentJob;
-import com.project.schoolapi.repository.EnrollmentJobRepository;
+import com.project.schoolapi.dto.EnrollmentRequest;
+import com.project.schoolapi.dto.EnrollmentResponse;
 import com.project.schoolapi.service.EnrollmentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.UUID;
 
@@ -16,23 +21,20 @@ import java.util.UUID;
 public class EnrollmentController {
 
     private final EnrollmentService enrollmentService;
-    private final EnrollmentJobRepository enrollmentJobRepository;
 
     @PostMapping
-    public ResponseEntity<EnrollmentJob> enroll(
-            @Valid @RequestParam UUID studentId,
-            @Valid @RequestParam UUID schoolId) {
-
-        EnrollmentJob job = enrollmentService.createEnrollment(studentId, schoolId);
+    public ResponseEntity<EnrollmentResponse> enroll(
+            @Valid @RequestBody EnrollmentRequest request
+    ) {
+        EnrollmentResponse job = enrollmentService.createEnrollment(request.getStudentId(), request.getSchoolId());
         return ResponseEntity.accepted().body(job);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<EnrollmentJob> getStatus(
-            @Valid @PathVariable String id
+    public ResponseEntity<EnrollmentResponse> getEnrollmentStatus(
+            @PathVariable UUID id
     ) {
-        return enrollmentJobRepository.findById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        EnrollmentResponse job = enrollmentService.getEnrollment(id);
+        return ResponseEntity.ok(job);
     }
 }

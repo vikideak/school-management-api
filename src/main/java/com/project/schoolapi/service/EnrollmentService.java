@@ -1,5 +1,7 @@
 package com.project.schoolapi.service;
 
+import com.project.schoolapi.dto.EnrollmentResponse;
+import com.project.schoolapi.exception.NotFoundException;
 import com.project.schoolapi.model.EnrollmentJob;
 import com.project.schoolapi.model.EnrollmentStatus;
 import com.project.schoolapi.model.School;
@@ -25,7 +27,7 @@ public class EnrollmentService {
     private final StudentRepository studentRepository;
     private final SchoolRepository schoolRepository;
 
-    public EnrollmentJob createEnrollment(UUID studentId, UUID schoolId) {
+    public EnrollmentResponse createEnrollment(UUID studentId, UUID schoolId) {
         EnrollmentJob job = EnrollmentJob.builder()
                 .studentId(studentId.toString())
                 .schoolId(schoolId.toString())
@@ -34,7 +36,13 @@ public class EnrollmentService {
                 .updatedAt(LocalDateTime.now())
                 .build();
 
-        return enrollmentJobRepository.save(job);
+        return EnrollmentResponse.fromEnrollmentJob(enrollmentJobRepository.save(job));
+    }
+
+    public EnrollmentResponse getEnrollment(UUID id) {
+        return enrollmentJobRepository.findById(id.toString())
+                .map(EnrollmentResponse::fromEnrollmentJob)
+                .orElseThrow(() -> new NotFoundException("Enrollment not found"));
     }
 
     @Scheduled(fixedDelay = 5000)
@@ -56,6 +64,7 @@ public class EnrollmentService {
             }
 
             int count = studentRepository.countBySchoolId(school.getId());
+
             if (count >= school.getCapacity()) {
                 job.setEnrollmentStatus(EnrollmentStatus.FAILED);
                 job.setErrorMessage("School at max capacity");
@@ -67,6 +76,12 @@ public class EnrollmentService {
             if (student == null) {
                 job.setEnrollmentStatus(EnrollmentStatus.FAILED);
                 job.setErrorMessage("Student does not exist");
+                continue;
+            }
+
+            if (student.getSchool() != null) {
+                job.setEnrollmentStatus(EnrollmentStatus.FAILED);
+                job.setErrorMessage("Student is already enrolled to a school");
                 continue;
             }
 

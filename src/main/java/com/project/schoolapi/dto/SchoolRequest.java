@@ -8,9 +8,9 @@ import lombok.Getter;
 @Getter
 public class SchoolRequest {
     @NotBlank
-    public String name;
+    private String name;
 
     @Min(50)
     @Max(2000)
-    public int capacity;
+    private int capacity;
 }

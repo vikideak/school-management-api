@@ -21,7 +21,6 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 public class EnrollmentJob {
-
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;

@@ -6,5 +6,5 @@ import lombok.Getter;
 @Getter
 public class StudentRequest {
     @NotBlank
-    String name;
+    private String name;
 }

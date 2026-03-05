@@ -1,6 +1,16 @@
-FROM eclipse-temurin:21-jdk-alpine
+FROM gradle:8.5-jdk21 AS build
+
+WORKDIR /home/gradle/project
+COPY --chown=gradle:gradle build.gradle gradle/ ./
+COPY --chown=gradle:gradle src/main/ src/main/
+
+RUN gradle bootJar --no-daemon
+
+FROM eclipse-temurin:21-jre-alpine
+
 WORKDIR /app
-COPY . .
-RUN ./gradlew build -x test
+COPY --from=build /home/gradle/project/build/libs/*.jar app.jar
+
 EXPOSE 8080
-ENTRYPOINT ["java","-jar","build/libs/school-management-api-0.0.1-SNAPSHOT.jar"]
+
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]

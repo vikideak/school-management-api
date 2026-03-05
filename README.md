@@ -16,8 +16,8 @@ This project is a Spring Boot REST API for managing schools and students. It sup
 
 ## Prerequisites
 
-- Java 21
-- Gradle 7+
+- Java 21 (only for local test run)
+- Gradle 8.6 (only for local test run)
 - Docker & Docker Compose
 - Optional: IDE (IntelliJ, VSCode) for development
 
@@ -27,16 +27,13 @@ This project is a Spring Boot REST API for managing schools and students. It sup
 
 ### Running the project
 
-1. Build Docker images: 
-run `docker compose build --no-cache`
-
-2. Start containers:
-run `docker compose up`
+1. Build Docker images and start containers:
+   run `docker compose up -d`
 
    - The API will be available at http://localhost:8080/swagger-ui/index.html.
    - Postgres database will run in a container as defined in docker-compose.yml.
 
-3. Stop containers:
+2. Stop containers:
 run `docker compose down -v`
 
 ### Running the tests

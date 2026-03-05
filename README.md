@@ -1,6 +1,7 @@
 # School Management API
 
-This project is a Spring Boot REST API for managing schools and students. It supports CRUD operations, searching, and asynchronous enrollment of students into schools.
+This project is a Spring Boot REST API for managing schools and students. It supports CRUD operations, searching, and
+asynchronous enrollment of students into schools.
 
 ---
 
@@ -16,10 +17,10 @@ This project is a Spring Boot REST API for managing schools and students. It sup
 
 ## Prerequisites
 
-- Java 21 (only for local test run)
-- Gradle 8.6 (only for local test run)
 - Docker & Docker Compose
 - Optional: IDE (IntelliJ, VSCode) for development
+- Optional: Java 21 for test run
+- Optional: Gradle 8.6 for test run
 
 ---
 
@@ -27,16 +28,19 @@ This project is a Spring Boot REST API for managing schools and students. It sup
 
 ### Running the project
 
-1. Build Docker images and start containers:
+1. Start the Docker desktop
+
+2. Build Docker images and start containers:
    run `docker compose up -d`
 
-   - The API will be available at http://localhost:8080/swagger-ui/index.html.
-   - Postgres database will run in a container as defined in docker-compose.yml.
+    - The API will be available at http://localhost:8080/swagger-ui/index.html.
+    - Postgres database will run in a container as defined in docker-compose.yml.
 
-2. Stop containers:
-run `docker compose down -v`
+3. Stop containers:
+   run `docker compose down -v`
 
-### Running the tests
+### Running the tests locally
+
 Run `./gradlew test`
 
 ---
@@ -70,3 +74,5 @@ Enrollments
 
 - Database migrations are managed by Flyway (src/main/resources/db/migration).
 - The asynchronous enrollment process runs every 5 seconds to simulate processing delays.
+- In a real production environment, all tests would normally run in a CI/CD pipeline before the application is packaged
+  into a Docker image and deployed.

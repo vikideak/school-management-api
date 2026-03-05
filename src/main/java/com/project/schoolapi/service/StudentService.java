@@ -42,6 +42,20 @@ public class StudentService {
                 .orElseThrow(() -> new NotFoundException("Student not found"));
     }
 
+    public StudentResponse updateStudent(UUID id, StudentRequest request) {
+        Student student = studentRepository.findById(id.toString())
+                .orElseThrow(() -> new NotFoundException("Student not found"));
+
+        if (!student.getName().equalsIgnoreCase(request.getName())
+                && studentRepository.existsByNameIgnoreCase(request.getName())) {
+            throw new DuplicateNameException("Student name already exists");
+        }
+
+        student.setName(request.getName());
+
+        return StudentResponse.fromStudentModel(studentRepository.save(student));
+    }
+
     public void deleteStudent(UUID id) {
         studentRepository.deleteById(id.toString());
     }

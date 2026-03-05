@@ -51,6 +51,21 @@ public class SchoolService {
         return SchoolDetailResponse.fromModels(school, students);
     }
 
+    public SchoolResponse updateSchool(UUID id, SchoolRequest request) {
+        School school = schoolRepository.findById(id.toString())
+                .orElseThrow(() -> new NotFoundException("School not found"));
+
+        if (!school.getName().equalsIgnoreCase(request.getName())
+                && schoolRepository.existsByNameIgnoreCase(request.getName())) {
+            throw new DuplicateNameException("School name already exists");
+        }
+
+        school.setName(request.getName());
+        school.setCapacity(request.getCapacity());
+
+        return SchoolResponse.fromSchoolModel(schoolRepository.save(school));
+    }
+
     public void deleteSchool(UUID id) {
         schoolRepository.deleteById(id.toString());
     }

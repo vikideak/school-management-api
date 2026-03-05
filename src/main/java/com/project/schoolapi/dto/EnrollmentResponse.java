@@ -3,12 +3,14 @@ package com.project.schoolapi.dto;
 import com.project.schoolapi.model.EnrollmentJob;
 import com.project.schoolapi.model.EnrollmentStatus;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
 
 @Getter
 @AllArgsConstructor
+@Builder
 public class EnrollmentResponse {
     private String id;
 

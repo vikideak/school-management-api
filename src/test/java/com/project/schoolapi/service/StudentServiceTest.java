@@ -53,7 +53,6 @@ class StudentServiceTest {
         assertEquals("Alice", response.getName());
         assertNotNull(response.getId());
 
-        // Verify save was called
         ArgumentCaptor<Student> captor = ArgumentCaptor.forClass(Student.class);
         verify(studentRepository).save(captor.capture());
         assertEquals("Alice", captor.getValue().getName());
@@ -107,6 +106,46 @@ class StudentServiceTest {
         when(studentRepository.findById(id.toString())).thenReturn(Optional.empty());
 
         assertThrows(NotFoundException.class, () -> studentService.getStudent(id));
+    }
+
+    @Test
+    void updateStudent_success() {
+        UUID id = UUID.randomUUID();
+        Student existingStudent = Student.builder().id(id.toString()).name("Old Name").build();
+
+        StudentRequest request = new StudentRequest("New Name");
+
+        when(studentRepository.findById(id.toString())).thenReturn(Optional.of(existingStudent));
+        when(studentRepository.existsByNameIgnoreCase("New Name")).thenReturn(false);
+        when(studentRepository.save(any(Student.class))).thenAnswer(i -> i.getArgument(0));
+
+        StudentResponse response = studentService.updateStudent(id, request);
+
+        assertEquals("New Name", response.getName());
+        verify(studentRepository).save(existingStudent);
+    }
+
+    @Test
+    void updateStudent_notFound() {
+        UUID id = UUID.randomUUID();
+        StudentRequest request = new StudentRequest("New Name");
+
+        when(studentRepository.findById(id.toString())).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class, () -> studentService.updateStudent(id, request));
+    }
+
+    @Test
+    void updateStudent_duplicateName_throwsException() {
+        UUID id = UUID.randomUUID();
+        Student existingStudent = Student.builder().id(id.toString()).name("Old Name").build();
+
+        StudentRequest request = new StudentRequest("Existing Name");
+
+        when(studentRepository.findById(id.toString())).thenReturn(Optional.of(existingStudent));
+        when(studentRepository.existsByNameIgnoreCase("Existing Name")).thenReturn(true);
+
+        assertThrows(DuplicateNameException.class, () -> studentService.updateStudent(id, request));
     }
 
     @Test

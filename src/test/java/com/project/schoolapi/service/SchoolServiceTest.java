@@ -117,6 +117,47 @@ class SchoolServiceTest {
     }
 
     @Test
+    void updateSchool_success() {
+        UUID id = UUID.randomUUID();
+        School existingSchool = School.builder().id(id.toString()).name("Old Name").capacity(100).build();
+
+        SchoolRequest request = new SchoolRequest("New Name", 200);
+
+        when(schoolRepository.findById(id.toString())).thenReturn(Optional.of(existingSchool));
+        when(schoolRepository.existsByNameIgnoreCase("New Name")).thenReturn(false);
+        when(schoolRepository.save(any(School.class))).thenAnswer(i -> i.getArgument(0));
+
+        SchoolResponse response = schoolService.updateSchool(id, request);
+
+        assertEquals("New Name", response.getName());
+        assertEquals(200, response.getCapacity());
+        verify(schoolRepository).save(existingSchool);
+    }
+
+    @Test
+    void updateSchool_notFound() {
+        UUID id = UUID.randomUUID();
+        SchoolRequest request = new SchoolRequest("New Name", 200);
+
+        when(schoolRepository.findById(id.toString())).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class, () -> schoolService.updateSchool(id, request));
+    }
+
+    @Test
+    void updateSchool_duplicateName_throwsException() {
+        UUID id = UUID.randomUUID();
+        School existingSchool = School.builder().id(id.toString()).name("Old Name").capacity(100).build();
+
+        SchoolRequest request = new SchoolRequest("Existing Name", 200);
+
+        when(schoolRepository.findById(id.toString())).thenReturn(Optional.of(existingSchool));
+        when(schoolRepository.existsByNameIgnoreCase("Existing Name")).thenReturn(true);
+
+        assertThrows(DuplicateNameException.class, () -> schoolService.updateSchool(id, request));
+    }
+
+    @Test
     void deleteSchool_callsRepository() {
         UUID id = UUID.randomUUID();
 

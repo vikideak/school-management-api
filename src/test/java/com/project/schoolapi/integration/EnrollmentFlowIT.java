@@ -1,6 +1,6 @@
 package com.project.schoolapi.integration;
 
-import com.project.schoolapi.dto.EnrollmentResponse;
+import com.project.schoolapi.dto.Enrollment;
 import com.project.schoolapi.model.EnrollmentJob;
 import com.project.schoolapi.model.EnrollmentStatus;
 import com.project.schoolapi.model.School;
@@ -15,8 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -54,10 +52,7 @@ class EnrollmentFlowIT {
                         .build()
         );
 
-        UUID studentId = UUID.fromString(student.getId());
-        UUID schoolId = UUID.fromString(school.getId());
-
-        EnrollmentResponse response = enrollmentService.createEnrollment(studentId, schoolId);
+        Enrollment response = enrollmentService.createEnrollment(student.getId(), school.getId());
 
         assertThat(response.getStatus()).isEqualTo(EnrollmentStatus.PENDING);
 
@@ -103,11 +98,8 @@ class EnrollmentFlowIT {
                         .build()
         );
 
-        UUID newStudentId = UUID.fromString(newStudent.getId());
-        UUID schoolId = UUID.fromString(school.getId());
-
-        EnrollmentResponse response =
-                enrollmentService.createEnrollment(newStudentId, schoolId);
+        Enrollment response =
+                enrollmentService.createEnrollment(newStudent.getId(), school.getId());
 
         enrollmentService.processJobs();
 

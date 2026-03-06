@@ -1,6 +1,6 @@
 package com.project.schoolapi.service;
 
-import com.project.schoolapi.dto.EnrollmentResponse;
+import com.project.schoolapi.dto.Enrollment;
 import com.project.schoolapi.exception.NotFoundException;
 import com.project.schoolapi.model.EnrollmentJob;
 import com.project.schoolapi.model.EnrollmentStatus;
@@ -27,21 +27,21 @@ public class EnrollmentService {
     private final StudentRepository studentRepository;
     private final SchoolRepository schoolRepository;
 
-    public EnrollmentResponse createEnrollment(UUID studentId, UUID schoolId) {
+    public Enrollment createEnrollment(String studentId, String schoolId) {
         EnrollmentJob job = EnrollmentJob.builder()
-                .studentId(studentId.toString())
-                .schoolId(schoolId.toString())
+                .studentId(studentId)
+                .schoolId(schoolId)
                 .enrollmentStatus(EnrollmentStatus.PENDING)
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build();
 
-        return EnrollmentResponse.fromEnrollmentJob(enrollmentJobRepository.save(job));
+        return Enrollment.fromEnrollmentJob(enrollmentJobRepository.save(job));
     }
 
-    public EnrollmentResponse getEnrollment(UUID id) {
+    public Enrollment getEnrollment(UUID id) {
         return enrollmentJobRepository.findById(id.toString())
-                .map(EnrollmentResponse::fromEnrollmentJob)
+                .map(Enrollment::fromEnrollmentJob)
                 .orElseThrow(() -> new NotFoundException("Enrollment not found"));
     }
 

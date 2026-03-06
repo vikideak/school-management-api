@@ -1,9 +1,8 @@
 package com.project.schoolapi.controller;
 
 import com.project.schoolapi.dto.PagedResponse;
-import com.project.schoolapi.dto.SchoolDetailResponse;
-import com.project.schoolapi.dto.SchoolRequest;
-import com.project.schoolapi.dto.SchoolResponse;
+import com.project.schoolapi.dto.School;
+import com.project.schoolapi.dto.SchoolDetail;
 import com.project.schoolapi.service.SchoolService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -39,12 +38,14 @@ class SchoolControllerTest {
 
     @Test
     void createSchool_success() {
-        SchoolRequest request = new SchoolRequest("Test School", 100);
-        SchoolResponse response = new SchoolResponse("id123", "Test School", 100);
+        School request = new School();
+        request.setName("Test School");
+        request.setCapacity(100);
+        School response = new School("id123", "Test School", 100);
 
         when(schoolService.createSchool(request)).thenReturn(response);
 
-        ResponseEntity<SchoolResponse> result = schoolController.createSchool(request);
+        ResponseEntity<School> result = schoolController.createSchool(request);
 
         assertThat(result.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         assertThat(result.getBody()).isEqualTo(response);
@@ -54,14 +55,14 @@ class SchoolControllerTest {
 
     @Test
     void searchSchools_success() {
-        SchoolResponse schoolResponse = new SchoolResponse("id123", "Test School", 100);
-        PagedResponse<SchoolResponse> pagedResponse = PagedResponse.fromPage(
+        School schoolResponse = new School("id123", "Test School", 100);
+        PagedResponse<School> pagedResponse = PagedResponse.fromPage(
                 new PageImpl<>(List.of(schoolResponse))
         );
 
         when(schoolService.searchSchools(anyString(), any(Pageable.class))).thenReturn(pagedResponse);
 
-        ResponseEntity<PagedResponse<SchoolResponse>> result = schoolController.searchSchools(0, 10, "Test", "name");
+        ResponseEntity<PagedResponse<School>> result = schoolController.searchSchools(0, 10, "Test", "name");
 
         assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(result.getBody()).isEqualTo(pagedResponse);
@@ -78,11 +79,11 @@ class SchoolControllerTest {
     @Test
     void getSchool_success() {
         UUID schoolId = UUID.randomUUID();
-        SchoolDetailResponse response = new SchoolDetailResponse("id123", "Test School", 100, Collections.emptyList());
+        SchoolDetail response = new SchoolDetail("id123", "Test School", 100, Collections.emptyList());
 
         when(schoolService.getSchool(schoolId)).thenReturn(response);
 
-        ResponseEntity<SchoolDetailResponse> result = schoolController.getSchool(schoolId);
+        ResponseEntity<SchoolDetail> result = schoolController.getSchool(schoolId);
 
         assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(result.getBody()).isEqualTo(response);
@@ -104,7 +105,9 @@ class SchoolControllerTest {
 
     @Test
     void createSchool_serviceThrowsException_propagates() {
-        SchoolRequest request = new SchoolRequest("Test School", 100);
+        School request = new School();
+        request.setName("Test School");
+        request.setCapacity(100);
         when(schoolService.createSchool(request)).thenThrow(new RuntimeException("Error"));
 
         RuntimeException ex = assertThrows(RuntimeException.class, () -> schoolController.createSchool(request));

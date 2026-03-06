@@ -1,12 +1,11 @@
 package com.project.schoolapi.service;
 
 import com.project.schoolapi.dto.PagedResponse;
-import com.project.schoolapi.dto.SchoolDetailResponse;
-import com.project.schoolapi.dto.SchoolRequest;
-import com.project.schoolapi.dto.SchoolResponse;
+import com.project.schoolapi.dto.School;
+import com.project.schoolapi.dto.SchoolDetail;
 import com.project.schoolapi.exception.DuplicateNameException;
+import com.project.schoolapi.exception.MaxCapacityReachedException;
 import com.project.schoolapi.exception.NotFoundException;
-import com.project.schoolapi.model.School;
 import com.project.schoolapi.model.Student;
 import com.project.schoolapi.repository.SchoolRepository;
 import com.project.schoolapi.repository.StudentRepository;
@@ -46,20 +45,22 @@ class SchoolServiceTest {
 
     @Test
     void createSchool_success() {
-        SchoolRequest request = new SchoolRequest("Springfield High", 500);
+        School request = new School();
+        request.setName("Springfield High");
+        request.setCapacity(500);
 
         when(schoolRepository.existsByNameIgnoreCase("Springfield High")).thenReturn(false);
 
-        School savedSchool = School.builder().id(UUID.randomUUID().toString()).name("Springfield High").capacity(500).build();
-        when(schoolRepository.save(any(School.class))).thenReturn(savedSchool);
+        com.project.schoolapi.model.School savedSchool = com.project.schoolapi.model.School.builder().id(UUID.randomUUID().toString()).name("Springfield High").capacity(500).build();
+        when(schoolRepository.save(any(com.project.schoolapi.model.School.class))).thenReturn(savedSchool);
 
-        SchoolResponse response = schoolService.createSchool(request);
+        School response = schoolService.createSchool(request);
 
         assertEquals("Springfield High", response.getName());
         assertEquals(500, response.getCapacity());
         assertNotNull(response.getId());
 
-        ArgumentCaptor<School> captor = ArgumentCaptor.forClass(School.class);
+        ArgumentCaptor<com.project.schoolapi.model.School> captor = ArgumentCaptor.forClass(com.project.schoolapi.model.School.class);
         verify(schoolRepository).save(captor.capture());
         assertEquals("Springfield High", captor.getValue().getName());
         assertEquals(500, captor.getValue().getCapacity());
@@ -67,7 +68,9 @@ class SchoolServiceTest {
 
     @Test
     void createSchool_duplicateName_throwsException() {
-        SchoolRequest request = new SchoolRequest("Springfield High", 500);
+        School request = new School();
+        request.setName("Springfield High");
+        request.setCapacity(500);
 
         when(schoolRepository.existsByNameIgnoreCase("Springfield High")).thenReturn(true);
 
@@ -80,12 +83,12 @@ class SchoolServiceTest {
         String nameFilter = "High";
         Pageable pageable = PageRequest.of(0, 10);
 
-        School school = School.builder().id(UUID.randomUUID().toString()).name("Springfield High").capacity(500).build();
-        Page<School> schoolPage = new PageImpl<>(List.of(school));
+        com.project.schoolapi.model.School school = com.project.schoolapi.model.School.builder().id(UUID.randomUUID().toString()).name("Springfield High").capacity(500).build();
+        Page<com.project.schoolapi.model.School> schoolPage = new PageImpl<>(List.of(school));
 
         when(schoolRepository.findByNameIgnoreCaseContaining(nameFilter, pageable)).thenReturn(schoolPage);
 
-        PagedResponse<SchoolResponse> response = schoolService.searchSchools(nameFilter, pageable);
+        PagedResponse<School> response = schoolService.searchSchools(nameFilter, pageable);
 
         assertEquals(1, response.getContent().size());
         assertEquals("Springfield High", response.getContent().getFirst().getName());
@@ -94,13 +97,13 @@ class SchoolServiceTest {
     @Test
     void getSchool_existingId_returnsDetail() {
         UUID id = UUID.randomUUID();
-        School school = School.builder().id(id.toString()).name("Springfield High").capacity(500).build();
+        com.project.schoolapi.model.School school = com.project.schoolapi.model.School.builder().id(id.toString()).name("Springfield High").capacity(500).build();
         Student student = Student.builder().id(UUID.randomUUID().toString()).name("Bart").build();
 
         when(schoolRepository.findById(id.toString())).thenReturn(Optional.of(school));
         when(studentRepository.findBySchoolId(id.toString())).thenReturn(List.of(student));
 
-        SchoolDetailResponse response = schoolService.getSchool(id);
+        SchoolDetail response = schoolService.getSchool(id);
 
         assertEquals("Springfield High", response.getName());
         assertEquals(1, response.getStudents().size());
@@ -119,15 +122,21 @@ class SchoolServiceTest {
     @Test
     void updateSchool_success() {
         UUID id = UUID.randomUUID();
-        School existingSchool = School.builder().id(id.toString()).name("Old Name").capacity(100).build();
+        com.project.schoolapi.model.School existingSchool = com.project.schoolapi.model.School.builder()
+                .id(id.toString())
+                .name("Old Name")
+                .capacity(100)
+                .build();
 
-        SchoolRequest request = new SchoolRequest("New Name", 200);
+        School request = new School();
+        request.setName("New Name");
+        request.setCapacity(200);
 
         when(schoolRepository.findById(id.toString())).thenReturn(Optional.of(existingSchool));
         when(schoolRepository.existsByNameIgnoreCase("New Name")).thenReturn(false);
-        when(schoolRepository.save(any(School.class))).thenAnswer(i -> i.getArgument(0));
+        when(schoolRepository.save(any(com.project.schoolapi.model.School.class))).thenAnswer(i -> i.getArgument(0));
 
-        SchoolResponse response = schoolService.updateSchool(id, request);
+        School response = schoolService.updateSchool(id, request);
 
         assertEquals("New Name", response.getName());
         assertEquals(200, response.getCapacity());
@@ -137,7 +146,9 @@ class SchoolServiceTest {
     @Test
     void updateSchool_notFound() {
         UUID id = UUID.randomUUID();
-        SchoolRequest request = new SchoolRequest("New Name", 200);
+        School request = new School();
+        request.setName("New Name");
+        request.setCapacity(200);
 
         when(schoolRepository.findById(id.toString())).thenReturn(Optional.empty());
 
@@ -147,14 +158,32 @@ class SchoolServiceTest {
     @Test
     void updateSchool_duplicateName_throwsException() {
         UUID id = UUID.randomUUID();
-        School existingSchool = School.builder().id(id.toString()).name("Old Name").capacity(100).build();
+        com.project.schoolapi.model.School existingSchool = com.project.schoolapi.model.School.builder().id(id.toString()).name("Old Name").capacity(100).build();
 
-        SchoolRequest request = new SchoolRequest("Existing Name", 200);
+        School request = new School();
+        request.setName("Existing Name");
+        request.setCapacity(200);
 
         when(schoolRepository.findById(id.toString())).thenReturn(Optional.of(existingSchool));
         when(schoolRepository.existsByNameIgnoreCase("Existing Name")).thenReturn(true);
 
         assertThrows(DuplicateNameException.class, () -> schoolService.updateSchool(id, request));
+    }
+
+    @Test
+    void updateSchool_capacityExceeded_throwsException() {
+        UUID id = UUID.randomUUID();
+        com.project.schoolapi.model.School existingSchool = com.project.schoolapi.model.School.builder().id(id.toString()).name("Old Name").capacity(200).build();
+
+        School request = new School();
+        request.setName("Old Name");
+        request.setCapacity(100);
+
+        when(schoolRepository.findById(id.toString())).thenReturn(Optional.of(existingSchool));
+        when(schoolRepository.existsByNameIgnoreCase("Old Name")).thenReturn(false);
+        when(studentRepository.countBySchoolId(id.toString())).thenReturn(150);
+
+        assertThrows(MaxCapacityReachedException.class, () -> schoolService.updateSchool(id, request));
     }
 
     @Test

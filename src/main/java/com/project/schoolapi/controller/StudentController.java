@@ -1,8 +1,7 @@
 package com.project.schoolapi.controller;
 
 import com.project.schoolapi.dto.PagedResponse;
-import com.project.schoolapi.dto.StudentRequest;
-import com.project.schoolapi.dto.StudentResponse;
+import com.project.schoolapi.dto.Student;
 import com.project.schoolapi.service.StudentService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
@@ -32,14 +31,14 @@ public class StudentController {
     private final StudentService studentService;
 
     @PostMapping
-    public ResponseEntity<StudentResponse> createStudent(
-            @Valid @RequestBody StudentRequest request
+    public ResponseEntity<Student> createStudent(
+            @Valid @RequestBody Student request
     ) {
         return ResponseEntity.status(HttpStatus.CREATED).body(studentService.createStudent(request));
     }
 
     @GetMapping
-    public ResponseEntity<PagedResponse<StudentResponse>> searchStudents(
+    public ResponseEntity<PagedResponse<Student>> searchStudents(
             @RequestParam UUID schoolId,
             @RequestParam(defaultValue = "0") @Min(0) int pageNumber,
             @RequestParam(defaultValue = "10") @Min(1) int pageSize,
@@ -51,16 +50,16 @@ public class StudentController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<StudentResponse> getStudent(
+    public ResponseEntity<Student> getStudent(
             @PathVariable UUID id
     ) {
         return ResponseEntity.ok(studentService.getStudent(id));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<StudentResponse> updateStudent(
+    public ResponseEntity<Student> updateStudent(
             @PathVariable UUID id,
-            @Valid @RequestBody StudentRequest request
+            @Valid @RequestBody Student request
     ) {
         return ResponseEntity.ok(studentService.updateStudent(id, request));
     }

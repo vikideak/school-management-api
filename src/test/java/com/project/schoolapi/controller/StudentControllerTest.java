@@ -1,8 +1,7 @@
 package com.project.schoolapi.controller;
 
 import com.project.schoolapi.dto.PagedResponse;
-import com.project.schoolapi.dto.StudentRequest;
-import com.project.schoolapi.dto.StudentResponse;
+import com.project.schoolapi.dto.Student;
 import com.project.schoolapi.service.StudentService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,12 +36,13 @@ class StudentControllerTest {
 
     @Test
     void createStudent_success() {
-        StudentRequest request = new StudentRequest("John");
-        StudentResponse response = new StudentResponse("id123", "John", null);
+        Student request = new Student();
+        request.setName("John");
+        Student response = new Student("id123", "John", null);
 
         when(studentService.createStudent(request)).thenReturn(response);
 
-        ResponseEntity<StudentResponse> result = studentController.createStudent(request);
+        ResponseEntity<Student> result = studentController.createStudent(request);
 
         assertThat(result.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         assertThat(result.getBody()).isEqualTo(response);
@@ -54,14 +54,14 @@ class StudentControllerTest {
     void searchStudents_success() {
         UUID schoolId = UUID.randomUUID();
 
-        StudentResponse student = new StudentResponse("id123", "John", null);
-        PagedResponse<StudentResponse> pagedResponse =
+        Student student = new Student("id123", "John", null);
+        PagedResponse<Student> pagedResponse =
                 PagedResponse.fromPage(new PageImpl<>(List.of(student)));
 
         when(studentService.searchStudents(any(), anyString(), any(Pageable.class)))
                 .thenReturn(pagedResponse);
 
-        ResponseEntity<PagedResponse<StudentResponse>> result =
+        ResponseEntity<PagedResponse<Student>> result =
                 studentController.searchStudents(schoolId, 0, 10, "Jo", "name");
 
         assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -86,11 +86,11 @@ class StudentControllerTest {
     @Test
     void getStudent_success() {
         UUID studentId = UUID.randomUUID();
-        StudentResponse response = new StudentResponse(studentId.toString(), "John", null);
+        Student response = new Student(studentId.toString(), "John", null);
 
         when(studentService.getStudent(studentId)).thenReturn(response);
 
-        ResponseEntity<StudentResponse> result = studentController.getStudent(studentId);
+        ResponseEntity<Student> result = studentController.getStudent(studentId);
 
         assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(result.getBody()).isEqualTo(response);
@@ -112,7 +112,8 @@ class StudentControllerTest {
 
     @Test
     void createStudent_serviceThrowsException_propagates() {
-        StudentRequest request = new StudentRequest("John");
+        Student request = new Student();
+        request.setName("John");
 
         when(studentService.createStudent(request))
                 .thenThrow(new RuntimeException("Error"));

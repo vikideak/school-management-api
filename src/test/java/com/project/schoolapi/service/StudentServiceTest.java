@@ -1,11 +1,9 @@
 package com.project.schoolapi.service;
 
 import com.project.schoolapi.dto.PagedResponse;
-import com.project.schoolapi.dto.StudentRequest;
-import com.project.schoolapi.dto.StudentResponse;
+import com.project.schoolapi.dto.Student;
 import com.project.schoolapi.exception.DuplicateNameException;
 import com.project.schoolapi.exception.NotFoundException;
-import com.project.schoolapi.model.Student;
 import com.project.schoolapi.repository.StudentRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -41,26 +39,28 @@ class StudentServiceTest {
 
     @Test
     void createStudent_success() {
-        StudentRequest request = new StudentRequest("Alice");
+        Student request = new Student();
+        request.setName("Alice");
 
         when(studentRepository.existsByNameIgnoreCase("Alice")).thenReturn(false);
 
-        Student savedStudent = Student.builder().id(UUID.randomUUID().toString()).name("Alice").build();
-        when(studentRepository.save(any(Student.class))).thenReturn(savedStudent);
+        com.project.schoolapi.model.Student savedStudent = com.project.schoolapi.model.Student.builder().id(UUID.randomUUID().toString()).name("Alice").build();
+        when(studentRepository.save(any(com.project.schoolapi.model.Student.class))).thenReturn(savedStudent);
 
-        StudentResponse response = studentService.createStudent(request);
+        Student response = studentService.createStudent(request);
 
         assertEquals("Alice", response.getName());
         assertNotNull(response.getId());
 
-        ArgumentCaptor<Student> captor = ArgumentCaptor.forClass(Student.class);
+        ArgumentCaptor<com.project.schoolapi.model.Student> captor = ArgumentCaptor.forClass(com.project.schoolapi.model.Student.class);
         verify(studentRepository).save(captor.capture());
         assertEquals("Alice", captor.getValue().getName());
     }
 
     @Test
     void createStudent_duplicateName_throwsException() {
-        StudentRequest request = new StudentRequest("Bob");
+        Student request = new Student();
+        request.setName("Bob");
 
         when(studentRepository.existsByNameIgnoreCase("Bob")).thenReturn(true);
 
@@ -74,13 +74,13 @@ class StudentServiceTest {
         String nameFilter = "Al";
         Pageable pageable = PageRequest.of(0, 10);
 
-        Student student = Student.builder().id(UUID.randomUUID().toString()).name("Alice").build();
-        Page<Student> studentPage = new PageImpl<>(List.of(student));
+        com.project.schoolapi.model.Student student = com.project.schoolapi.model.Student.builder().id(UUID.randomUUID().toString()).name("Alice").build();
+        Page<com.project.schoolapi.model.Student> studentPage = new PageImpl<>(List.of(student));
 
         when(studentRepository.findBySchoolIdAndNameIgnoreCaseContaining(schoolId.toString(), nameFilter, pageable))
                 .thenReturn(studentPage);
 
-        PagedResponse<StudentResponse> response = studentService.searchStudents(schoolId, nameFilter, pageable);
+        PagedResponse<Student> response = studentService.searchStudents(schoolId, nameFilter, pageable);
 
         assertEquals(1, response.getContent().size());
         assertEquals("Alice", response.getContent().getFirst().getName());
@@ -89,11 +89,11 @@ class StudentServiceTest {
     @Test
     void getStudent_existingId_returnsStudent() {
         UUID id = UUID.randomUUID();
-        Student student = Student.builder().id(id.toString()).name("Charlie").build();
+        com.project.schoolapi.model.Student student = com.project.schoolapi.model.Student.builder().id(id.toString()).name("Charlie").build();
 
         when(studentRepository.findById(id.toString())).thenReturn(Optional.of(student));
 
-        StudentResponse response = studentService.getStudent(id);
+        Student response = studentService.getStudent(id);
 
         assertEquals("Charlie", response.getName());
         assertEquals(id.toString(), response.getId());
@@ -111,15 +111,16 @@ class StudentServiceTest {
     @Test
     void updateStudent_success() {
         UUID id = UUID.randomUUID();
-        Student existingStudent = Student.builder().id(id.toString()).name("Old Name").build();
+        com.project.schoolapi.model.Student existingStudent = com.project.schoolapi.model.Student.builder().id(id.toString()).name("Old Name").build();
 
-        StudentRequest request = new StudentRequest("New Name");
+        Student request = new Student();
+        request.setName("New Name");
 
         when(studentRepository.findById(id.toString())).thenReturn(Optional.of(existingStudent));
         when(studentRepository.existsByNameIgnoreCase("New Name")).thenReturn(false);
-        when(studentRepository.save(any(Student.class))).thenAnswer(i -> i.getArgument(0));
+        when(studentRepository.save(any(com.project.schoolapi.model.Student.class))).thenAnswer(i -> i.getArgument(0));
 
-        StudentResponse response = studentService.updateStudent(id, request);
+        Student response = studentService.updateStudent(id, request);
 
         assertEquals("New Name", response.getName());
         verify(studentRepository).save(existingStudent);
@@ -128,7 +129,8 @@ class StudentServiceTest {
     @Test
     void updateStudent_notFound() {
         UUID id = UUID.randomUUID();
-        StudentRequest request = new StudentRequest("New Name");
+        Student request = new Student();
+        request.setName("New Name");
 
         when(studentRepository.findById(id.toString())).thenReturn(Optional.empty());
 
@@ -138,9 +140,10 @@ class StudentServiceTest {
     @Test
     void updateStudent_duplicateName_throwsException() {
         UUID id = UUID.randomUUID();
-        Student existingStudent = Student.builder().id(id.toString()).name("Old Name").build();
+        com.project.schoolapi.model.Student existingStudent = com.project.schoolapi.model.Student.builder().id(id.toString()).name("Old Name").build();
 
-        StudentRequest request = new StudentRequest("Existing Name");
+        Student request = new Student();
+        request.setName("Existing Name");
 
         when(studentRepository.findById(id.toString())).thenReturn(Optional.of(existingStudent));
         when(studentRepository.existsByNameIgnoreCase("Existing Name")).thenReturn(true);

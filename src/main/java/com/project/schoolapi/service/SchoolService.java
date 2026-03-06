@@ -1,12 +1,11 @@
 package com.project.schoolapi.service;
 
 import com.project.schoolapi.dto.PagedResponse;
-import com.project.schoolapi.dto.SchoolDetailResponse;
-import com.project.schoolapi.dto.SchoolRequest;
-import com.project.schoolapi.dto.SchoolResponse;
+import com.project.schoolapi.dto.School;
+import com.project.schoolapi.dto.SchoolDetail;
 import com.project.schoolapi.exception.DuplicateNameException;
+import com.project.schoolapi.exception.MaxCapacityReachedException;
 import com.project.schoolapi.exception.NotFoundException;
-import com.project.schoolapi.model.School;
 import com.project.schoolapi.model.Student;
 import com.project.schoolapi.repository.SchoolRepository;
 import com.project.schoolapi.repository.StudentRepository;
@@ -24,35 +23,35 @@ public class SchoolService {
     private final SchoolRepository schoolRepository;
     private final StudentRepository studentRepository;
 
-    public SchoolResponse createSchool(SchoolRequest request) {
+    public School createSchool(School request) {
         if (schoolRepository.existsByNameIgnoreCase(request.getName())) {
             throw new DuplicateNameException("School name already exists");
         }
 
-        School school = School.builder()
+        com.project.schoolapi.model.School school = com.project.schoolapi.model.School.builder()
                 .name(request.getName())
                 .capacity(request.getCapacity())
                 .build();
 
-        return SchoolResponse.fromSchoolModel(schoolRepository.save(school));
+        return School.fromSchoolModel(schoolRepository.save(school));
     }
 
-    public PagedResponse<SchoolResponse> searchSchools(String name, Pageable pageable) {
+    public PagedResponse<School> searchSchools(String name, Pageable pageable) {
         return PagedResponse.fromPage(schoolRepository.findByNameIgnoreCaseContaining(name, pageable)
-                .map(SchoolResponse::fromSchoolModel));
+                .map(School::fromSchoolModel));
     }
 
-    public SchoolDetailResponse getSchool(UUID id) {
-        School school = schoolRepository.findById(id.toString())
+    public SchoolDetail getSchool(UUID id) {
+        com.project.schoolapi.model.School school = schoolRepository.findById(id.toString())
                 .orElseThrow(() -> new NotFoundException("School not found"));
 
         List<Student> students = studentRepository.findBySchoolId(id.toString());
 
-        return SchoolDetailResponse.fromModels(school, students);
+        return SchoolDetail.fromModels(school, students);
     }
 
-    public SchoolResponse updateSchool(UUID id, SchoolRequest request) {
-        School school = schoolRepository.findById(id.toString())
+    public School updateSchool(UUID id, School request) {
+        com.project.schoolapi.model.School school = schoolRepository.findById(id.toString())
                 .orElseThrow(() -> new NotFoundException("School not found"));
 
         if (!school.getName().equalsIgnoreCase(request.getName())
@@ -60,10 +59,17 @@ public class SchoolService {
             throw new DuplicateNameException("School name already exists");
         }
 
+        if (request.getCapacity() < school.getCapacity()) {
+            int studentsInSchool = studentRepository.countBySchoolId(id.toString());
+            if (request.getCapacity() < studentsInSchool) {
+                throw new MaxCapacityReachedException("School capacity too low");
+            }
+        }
+
         school.setName(request.getName());
         school.setCapacity(request.getCapacity());
 
-        return SchoolResponse.fromSchoolModel(schoolRepository.save(school));
+        return School.fromSchoolModel(schoolRepository.save(school));
     }
 
     public void deleteSchool(UUID id) {

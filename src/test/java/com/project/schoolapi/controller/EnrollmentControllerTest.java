@@ -1,12 +1,10 @@
 package com.project.schoolapi.controller;
 
-import com.project.schoolapi.dto.EnrollmentRequest;
-import com.project.schoolapi.dto.EnrollmentResponse;
+import com.project.schoolapi.dto.Enrollment;
 import com.project.schoolapi.model.EnrollmentStatus;
 import com.project.schoolapi.service.EnrollmentService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -33,34 +31,29 @@ class EnrollmentControllerTest {
     void enroll_success() {
         UUID studentId = UUID.randomUUID();
         UUID schoolId = UUID.randomUUID();
-        EnrollmentRequest request = new EnrollmentRequest(studentId, schoolId);
+        Enrollment request = new Enrollment();
+        request.setStudentId(studentId.toString());
+        request.setSchoolId(schoolId.toString());
 
-        EnrollmentResponse response = EnrollmentResponse.builder()
+        Enrollment response = Enrollment.builder()
                 .id(UUID.randomUUID().toString())
                 .studentId(studentId.toString())
                 .schoolId(schoolId.toString())
                 .status(EnrollmentStatus.PENDING)
                 .build();
 
-        when(enrollmentService.createEnrollment(studentId, schoolId)).thenReturn(response);
+        when(enrollmentService.createEnrollment(studentId.toString(), schoolId.toString())).thenReturn(response);
 
-        ResponseEntity<EnrollmentResponse> result = enrollmentController.enroll(request);
+        ResponseEntity<Enrollment> result = enrollmentController.enroll(request);
 
         assertThat(result.getStatusCode()).isEqualTo(HttpStatus.ACCEPTED);
         assertThat(result.getBody()).isEqualTo(response);
-
-        ArgumentCaptor<UUID> studentCaptor = ArgumentCaptor.forClass(UUID.class);
-        ArgumentCaptor<UUID> schoolCaptor = ArgumentCaptor.forClass(UUID.class);
-        verify(enrollmentService).createEnrollment(studentCaptor.capture(), schoolCaptor.capture());
-
-        assertThat(studentCaptor.getValue()).isEqualTo(studentId);
-        assertThat(schoolCaptor.getValue()).isEqualTo(schoolId);
     }
 
     @Test
     void getEnrollmentStatus_success() {
         UUID enrollmentId = UUID.randomUUID();
-        EnrollmentResponse response = EnrollmentResponse.builder()
+        Enrollment response = Enrollment.builder()
                 .id(enrollmentId.toString())
                 .studentId(UUID.randomUUID().toString())
                 .schoolId(UUID.randomUUID().toString())
@@ -69,7 +62,7 @@ class EnrollmentControllerTest {
 
         when(enrollmentService.getEnrollment(enrollmentId)).thenReturn(response);
 
-        ResponseEntity<EnrollmentResponse> result = enrollmentController.getEnrollmentStatus(enrollmentId);
+        ResponseEntity<Enrollment> result = enrollmentController.getEnrollmentStatus(enrollmentId);
 
         assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(result.getBody()).isEqualTo(response);
@@ -81,9 +74,11 @@ class EnrollmentControllerTest {
     void enroll_serviceThrowsException_propagates() {
         UUID studentId = UUID.randomUUID();
         UUID schoolId = UUID.randomUUID();
-        EnrollmentRequest request = new EnrollmentRequest(studentId, schoolId);
+        Enrollment request = new Enrollment();
+        request.setStudentId(studentId.toString());
+        request.setSchoolId(schoolId.toString());
 
-        when(enrollmentService.createEnrollment(studentId, schoolId))
+        when(enrollmentService.createEnrollment(studentId.toString(), schoolId.toString()))
                 .thenThrow(new RuntimeException("Enrollment failed"));
 
         RuntimeException ex = assertThrows(RuntimeException.class, () -> enrollmentController.enroll(request));

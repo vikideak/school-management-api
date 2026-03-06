@@ -1,6 +1,6 @@
 package com.project.schoolapi.service;
 
-import com.project.schoolapi.dto.EnrollmentResponse;
+import com.project.schoolapi.dto.Enrollment;
 import com.project.schoolapi.exception.NotFoundException;
 import com.project.schoolapi.model.EnrollmentJob;
 import com.project.schoolapi.model.EnrollmentStatus;
@@ -22,7 +22,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
@@ -59,7 +58,7 @@ class EnrollmentServiceTest {
 
         when(enrollmentJobRepository.save(any(EnrollmentJob.class))).thenReturn(savedJob);
 
-        EnrollmentResponse response = enrollmentService.createEnrollment(studentId, schoolId);
+        Enrollment response = enrollmentService.createEnrollment(studentId.toString(), schoolId.toString());
 
         assertThat(response.getId()).isEqualTo(savedJob.getId());
         assertThat(response.getStatus()).isEqualTo(EnrollmentStatus.PENDING);
@@ -80,7 +79,7 @@ class EnrollmentServiceTest {
 
         when(enrollmentJobRepository.findById(id.toString())).thenReturn(Optional.of(job));
 
-        EnrollmentResponse response = enrollmentService.getEnrollment(id);
+        Enrollment response = enrollmentService.getEnrollment(id);
 
         assertThat(response.getId()).isEqualTo(id.toString());
         assertThat(response.getStatus()).isEqualTo(EnrollmentStatus.PENDING);

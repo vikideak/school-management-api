@@ -1,7 +1,6 @@
 package com.project.schoolapi.controller;
 
-import com.project.schoolapi.dto.EnrollmentRequest;
-import com.project.schoolapi.dto.EnrollmentResponse;
+import com.project.schoolapi.dto.Enrollment;
 import com.project.schoolapi.service.EnrollmentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -23,18 +22,18 @@ public class EnrollmentController {
     private final EnrollmentService enrollmentService;
 
     @PostMapping
-    public ResponseEntity<EnrollmentResponse> enroll(
-            @Valid @RequestBody EnrollmentRequest request
+    public ResponseEntity<Enrollment> enroll(
+            @Valid @RequestBody Enrollment request
     ) {
-        EnrollmentResponse job = enrollmentService.createEnrollment(request.getStudentId(), request.getSchoolId());
+        Enrollment job = enrollmentService.createEnrollment(request.getStudentId(), request.getSchoolId());
         return ResponseEntity.accepted().body(job);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<EnrollmentResponse> getEnrollmentStatus(
+    public ResponseEntity<Enrollment> getEnrollmentStatus(
             @PathVariable UUID id
     ) {
-        EnrollmentResponse job = enrollmentService.getEnrollment(id);
+        Enrollment job = enrollmentService.getEnrollment(id);
         return ResponseEntity.ok(job);
     }
 }

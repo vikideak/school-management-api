@@ -1,9 +1,8 @@
 package com.project.schoolapi.controller;
 
 import com.project.schoolapi.dto.PagedResponse;
-import com.project.schoolapi.dto.SchoolDetailResponse;
-import com.project.schoolapi.dto.SchoolRequest;
-import com.project.schoolapi.dto.SchoolResponse;
+import com.project.schoolapi.dto.School;
+import com.project.schoolapi.dto.SchoolDetail;
 import com.project.schoolapi.service.SchoolService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
@@ -33,14 +32,14 @@ public class SchoolController {
     private final SchoolService schoolService;
 
     @PostMapping
-    public ResponseEntity<SchoolResponse> createSchool(
-            @Valid @RequestBody SchoolRequest request
+    public ResponseEntity<School> createSchool(
+            @Valid @RequestBody School request
     ) {
         return ResponseEntity.status(HttpStatus.CREATED).body(schoolService.createSchool(request));
     }
 
     @GetMapping
-    public ResponseEntity<PagedResponse<SchoolResponse>> searchSchools(
+    public ResponseEntity<PagedResponse<School>> searchSchools(
             @RequestParam(defaultValue = "0") @Min(0) int pageNumber,
             @RequestParam(defaultValue = "10") @Min(1) int pageSize,
             @RequestParam(defaultValue = "") String name,
@@ -51,16 +50,16 @@ public class SchoolController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<SchoolDetailResponse> getSchool(
+    public ResponseEntity<SchoolDetail> getSchool(
             @PathVariable UUID id
     ) {
         return ResponseEntity.ok((schoolService.getSchool(id)));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<SchoolResponse> updateSchool(
+    public ResponseEntity<School> updateSchool(
             @PathVariable UUID id,
-            @Valid @RequestBody SchoolRequest request
+            @Valid @RequestBody School request
     ) {
         return ResponseEntity.ok(schoolService.updateSchool(id, request));
     }

@@ -6,9 +6,10 @@ CREATE TABLE school (
 
 CREATE TABLE student (
                          id VARCHAR(36) PRIMARY KEY,
-                         name VARCHAR(255) NOT NULL,
+                         name VARCHAR(255) UNIQUE NOT NULL,
                          school_id VARCHAR(36),
-                         CONSTRAINT fk_school FOREIGN KEY (school_id) REFERENCES school(id)
+
+                         CONSTRAINT fk_school FOREIGN KEY (school_id) REFERENCES school(id) ON DELETE SET NULL
 );
 
 CREATE TABLE enrollment_job (
